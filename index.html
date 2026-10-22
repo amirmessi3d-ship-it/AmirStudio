@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Amir Studio creates brand identities, CGI, motion design and cinematic content for ambitious brands in Egypt and the Gulf.">
+    <meta name="theme-color" content="#0A0A0A">
+<title>AMIR STUDIO // Creative Director & CGI Specialist</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        bauhaus: {
+                            red: '#FF3333',
+                            blue: '#0055FF',
+                            yellow: '#FFCC00',
+                            dark: '#0A0A0A',
+                            light: '#F4F4F0',
+                            gray: '#1A1A1A',
+                            border: '#333333'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                        bauhaus: ['Space Grotesk', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body {
+            background-color: #0A0A0A;
+            color: #F4F4F0;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        ::selection {
+            background: #FF3333;
+            color: #FFF;
+        }
+        .swiss-grid {
+            background-size: 40px 40px;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        }
+        .canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .hero-sequence {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+            background: #0A0A0A;
+        }
+        .hero-sequence::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, rgba(10,10,10,.88) 0%, rgba(10,10,10,.48) 55%, rgba(10,10,10,.70) 100%), linear-gradient(0deg, rgba(10,10,10,.70) 0%, transparent 45%);
+        }
+        .hero-sequence img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            opacity: .72;
+        }
+        :focus-visible { outline:2px solid #FFCC00; outline-offset:4px; }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior:auto !important; animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; } }
+        dialog#campaign-gallery { width:min(96vw,1200px); max-width:min(96vw,1200px); max-height:90dvh; }
+        dialog#campaign-gallery::backdrop { background:rgba(0,0,0,.9); backdrop-filter:blur(8px); }
+        .content-layer {
+            position: relative;
+            z-index: 10;
+        }
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0A0A0A;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #333333;
+            border-radius: 2px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #FF3333;
+        }
+    
+        .manifesto-track { scrollbar-width: thin; scrollbar-color: #FF3333 #222; }
+        .manifesto-card { flex: 0 0 min(78vw, 340px); scroll-snap-align: start; }
+        @media (min-width: 768px) { .manifesto-card { flex-basis: min(31vw, 340px); } }
+        .service-hover-preview { position: fixed; z-index: 70; width: clamp(150px, 18vw, 230px); aspect-ratio: 9 / 16; object-fit: cover; border: 1px solid rgba(244,244,240,.55); box-shadow: 0 18px 70px rgba(0,0,0,.55); pointer-events: none; opacity: 0; transform: translate3d(-50%,-50%,0) scale(.96); transition: opacity .16s ease, transform .16s ease; }
+        .service-hover-preview.is-visible { opacity: 1; transform: translate3d(-50%,-50%,0) scale(1); }
+        @media (max-width: 767px), (hover: none), (prefers-reduced-motion: reduce) { .service-hover-preview { display:none !important; } }
+    
+        .client-marquee { overflow: hidden; }
+        .client-marquee-track { display:flex; width:max-content; animation: client-logo-scroll 42s linear infinite; }
+        .client-marquee-group { display:flex; flex:none; align-items:center; gap:1rem; padding:0 1rem 0 0; list-style:none; }
+        .client-logo-card { display:flex; flex:0 0 auto; width:clamp(150px,18vw,230px); height:104px; align-items:center; justify-content:center; padding:14px 18px; border:1px solid #333; background:#f4f4f0; }
+        .client-logo-card img { display:block; max-width:100%; max-height:100%; width:100%; height:100%; object-fit:contain; }
+        .client-marquee:hover .client-marquee-track, .client-marquee:focus-within .client-marquee-track, .client-marquee.is-paused .client-marquee-track { animation-play-state:paused; }
+        @keyframes client-logo-scroll { to { transform:translateX(-50%); } }
+        @media (prefers-reduced-motion: reduce) { .client-marquee { overflow-x:auto; } .client-marquee-track { animation:none !important; transform:none !important; } .client-logo-motion-toggle { display:none; } }
+    
+        .client-logo-card { width:clamp(132px,15vw,190px); height:126px; padding:8px; }
+        .client-logo-card img { width:100%; height:100%; object-fit:contain; }
+        .client-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.75rem; }
+        .client-grid-card { display:flex; aspect-ratio:1/1; align-items:center; justify-content:center; overflow:hidden; border:1px solid #333; background:#f4f4f0; padding:.55rem; }
+        .client-grid-card img { display:block; width:100%; height:100%; object-fit:contain; }
+        .client-more summary { list-style:none; }
+        .client-more summary::-webkit-details-marker { display:none; }
+        .client-more summary::after { content:'+'; float:right; color:#FF3333; font-size:1.25rem; }
+        .client-more[open] summary::after { content:'−'; }
+        @media (min-width:640px) { .client-grid { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+        @media (min-width:1024px) { .client-grid { grid-template-columns:repeat(5,minmax(0,1fr)); } }
+        @media (min-width:1280px) { .client-grid { grid-template-columns:repeat(7,minmax(0,1fr)); } }
+    </style>
+</head>
+<body class="swiss-grid antialiased">
+
+    <div class="canvas-container" id="canvas-container"></div>
+    <header class="fixed top-0 left-0 w-full z-50 px-6 py-4 md:px-12 flex justify-between items-center backdrop-blur-md bg-bauhaus-dark/70 border-b border-bauhaus-border/50">
+        <div class="flex items-center space-x-3">
+            <!-- اللوجو الجديد في الهيدر -->
+            <img src="amir-studio-logo.png" alt="Amir Studio Logo" class="h-8 md:h-10 w-auto object-contain">
+        </div>
+        <nav aria-label="Main navigation" class="hidden md:flex space-x-8 font-mono text-xs tracking-wider text-neutral-400">
+            <a href="#hero" class="hover:text-bauhaus-red transition-colors">01. HOME</a>
+            <a href="#expertise" class="hover:text-bauhaus-red transition-colors">02. EXPERTISE</a>
+            <a href="#packages" class="hover:text-bauhaus-red transition-colors">03. PACKAGES</a>
+            <a href="#projects" class="hover:text-bauhaus-red transition-colors">04. PROJECTS</a>
+            <a href="#clients" class="hover:text-bauhaus-red transition-colors">05. CLIENTS</a>
+            <a href="#about" class="hover:text-bauhaus-red transition-colors">06. ABOUT</a>
+        </nav>
+        <div>
+            <a href="#contact" class="px-5 py-2.5 bg-bauhaus-light text-bauhaus-dark font-mono text-xs font-bold uppercase tracking-wider hover:bg-bauhaus-red hover:text-white transition-all duration-300">
+                INITIATE CONTACT
+            </a>
+        </div>
+    </header>
+
+    <div class="content-layer">
+
+        <section id="hero" class="relative overflow-hidden min-h-screen flex flex-col justify-between px-6 md:px-12 pt-32 pb-12">
+            <div class="relative z-10 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-center flex-grow">
+                <div class="lg:col-span-8 space-y-6">
+                    <div class="inline-flex items-center space-x-2 px-3 py-1 bg-neutral-900 border border-bauhaus-border font-mono text-xs text-neutral-400">
+                        <span class="w-2 h-2 rounded-full bg-bauhaus-yellow"></span>
+                        <span>CREATIVE DIRECTOR & CGI SPECIALIST</span>
+                    </div>
+                    <h1 class="font-bauhaus text-5xl sm:text-7xl lg:text-8xl font-bold tracking-tight uppercase leading-[0.9]">
+                        DESIGNING <br>
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-bauhaus-red via-bauhaus-yellow to-bauhaus-blue">IDEAS</span> <br>
+                        BUILDING EXPERIENCES.
+                    </h1>
+                    <p class="text-neutral-400 max-w-xl text-base md:text-lg font-light leading-relaxed">
+                        18+ years of expertise transforming visions into distinctive brand identities, high-end 3D architectural visualization, motion graphics, and Swiss-grid digital ecosystems.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-3 pt-2">
+                        <a href="#projects" class="inline-flex min-h-12 items-center justify-center px-6 py-3 bg-bauhaus-light text-bauhaus-dark font-mono text-xs font-bold uppercase tracking-wider hover:bg-bauhaus-red hover:text-white transition-colors">EXPLORE SELECTED WORK</a>
+                        <a href="https://wa.me/201018854164?text=Hello%20Amir%20Studio%2C%20I%27d%20like%20to%20discuss%20a%20project." target="_blank" rel="noopener noreferrer" class="inline-flex min-h-12 items-center justify-center px-6 py-3 border border-bauhaus-border text-bauhaus-light font-mono text-xs font-bold uppercase tracking-wider hover:border-bauhaus-red hover:text-bauhaus-red transition-colors">START A PROJECT</a>
+                    </div>
+                </div>
+                <div class="lg:col-span-4 flex flex-col justify-end space-y-6 border-l border-bauhaus-border pl-6 lg:pl-12">
+                    <div class="font-mono text-xs text-neutral-500 space-y-2">
+                        <p class="text-bauhaus-light font-bold">SYSTEM STATS</p>
+                        <p>MARKETS: EGYPT, KSA, UAE</p>
+                        <p>DISCIPLINE: ART DIRECTION & CGI</p>
+                    </div>
+                    <div class="pt-4 flex items-center space-x-4">
+                        <a href="#projects" class="w-12 h-12 rounded-full border border-bauhaus-border flex items-center justify-center hover:bg-bauhaus-red hover:border-bauhaus-red transition-all group">
+                            <svg class="w-5 h-5 text-neutral-400 group-hover:text-white transform group-hover:translate-y-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+                        </a>
+                        <span class="font-mono text-xs tracking-wider text-neutral-400">SCROLL TO EXPLORE</span>
+                    </div>
+                </div>
+            </div>
+            <div class="relative z-10 max-w-7xl mx-auto w-full pt-12 border-t border-bauhaus-border grid grid-cols-2 md:grid-cols-4 gap-6 font-mono text-xs text-neutral-500">
+                <div>[01] BRAND IDENTITY</div>
+                <div>[02] 3D ARCHITECTURE & CGI</div>
+                <div>[03] MOTION GRAPHICS</div>
+                <div>[04] GENERATIVE AI WORKFLOWS</div>
+            </div>
+        </section>
+
+
+
+        <section id="selected-brands" class="py-12 md:py-16 px-6 md:px-12 border-y border-bauhaus-border bg-neutral-950/80" aria-labelledby="selected-brands-title">
+            <div class="max-w-7xl mx-auto">
+                <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-7">
+                    <div><span class="font-mono text-[10px] text-bauhaus-red tracking-widest uppercase">CLIENT LOGOS // SELECTED</span>
+                        <h2 id="selected-brands-title" class="font-bauhaus text-2xl md:text-3xl font-bold mt-2 uppercase">SELECTED CLIENTS & BRANDS</h2>
+                        <p class="mt-2 font-mono text-[10px] md:text-xs text-neutral-400">A rotating selection from the Amir Studio portfolio.</p>
+                    </div>
+                    <button type="button" class="client-logo-motion-toggle min-h-11 self-start sm:self-auto border border-bauhaus-border px-4 py-2 font-mono text-[10px] font-bold tracking-wider hover:border-bauhaus-red" aria-pressed="false">PAUSE MOTION</button>
+                    <span class="sr-only client-motion-status" aria-live="polite"></span>
+                </div>
+                <div class="client-marquee" role="group" aria-label="Selected client and brand logos"><div class="client-marquee-track">
+                    <ul class="client-marquee-group"><li class="client-logo-card"><img src="clients/portfolio/brand-01.webp" alt="Mimar Architecture logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                            <li class="client-logo-card"><img src="clients/portfolio/brand-03.webp" alt="BOBANA Hair & Skin Care logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                            <li class="client-logo-card"><img src="clients/portfolio/brand-04.webp" alt="Emdad Construction & Development logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                            <li class="client-logo-card"><img src="clients/portfolio/brand-05.webp" alt="AA Engineering logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                            <li class="client-logo-card"><img src="clients/portfolio/brand-06.webp" alt="Art Works logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                            <li class="client-logo-card"><img src="clients/portfolio/brand-09.webp" alt="Enjaz Development logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                            <li class="client-logo-card"><img src="clients/portfolio/brand-11.webp" alt="Young Stars Football Club logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                            <li class="client-logo-card"><img src="clients/portfolio/brand-15.webp" alt="NIVA Adult School logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                            <li class="client-logo-card"><img src="clients/portfolio/brand-31.webp" alt="EXTRON logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                            <li class="client-logo-card"><img src="clients/portfolio/brand-42.webp" alt="Sedra Real Estate Development logo" width="480" height="480" loading="lazy" decoding="async"></li></ul><ul class="client-marquee-group" aria-hidden="true" tabindex="-1"><li class="client-logo-card"><img src="clients/portfolio/brand-01.webp" width="480" height="480" loading="lazy" decoding="async"></li>
+                            <li class="client-logo-card"><img src="clients/portfolio/brand-03.webp" width="480" height="480" loading="lazy" decoding="async"></li>
+                            <li class="client-logo-card"><img src="clients/portfolio/brand-04.webp" width="480" height="480" loading="lazy" decoding="async"></li>
+                            <li class="client-logo-card"><img src="clients/portfolio/brand-05.webp" width="480" height="480" loading="lazy" decoding="async"></li>
+                            <li class="client-logo-card"><img src="clients/portfolio/brand-06.webp" width="480" height="480" loading="lazy" decoding="async"></li>
+                            <li class="client-logo-card"><img src="clients/portfolio/brand-09.webp" width="480" height="480" loading="lazy" decoding="async"></li>
+                            <li class="client-logo-card"><img src="clients/portfolio/brand-11.webp" width="480" height="480" loading="lazy" decoding="async"></li>
+                            <li class="client-logo-card"><img src="clients/portfolio/brand-15.webp" width="480" height="480" loading="lazy" decoding="async"></li>
+                            <li class="client-logo-card"><img src="clients/portfolio/brand-31.webp" width="480" height="480" loading="lazy" decoding="async"></li>
+                            <li class="client-logo-card"><img src="clients/portfolio/brand-42.webp" width="480" height="480" loading="lazy" decoding="async"></li></ul>
+                </div></div>
+            </div>
+        </section>
+
+        <section id="manifesto" class="py-20 md:py-28 px-6 md:px-12 border-t border-bauhaus-border bg-neutral-950/85" aria-labelledby="manifesto-title">
+            <div class="max-w-7xl mx-auto">
+                <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-8 pb-6 border-b border-bauhaus-border">
+                    <div>
+                        <span class="font-mono text-xs text-bauhaus-red tracking-widest uppercase">STUDIO MANIFESTO // 01—10</span>
+                        <h2 id="manifesto-title" class="font-bauhaus text-3xl md:text-5xl font-bold mt-2 uppercase">IDEAS THAT MAKE<br><span class="text-bauhaus-red">BRANDS IMPOSSIBLE TO IGNORE.</span></h2>
+                        <p class="mt-4 max-w-xl text-sm md:text-base text-neutral-400 leading-relaxed">A few principles behind the way we think, build and move brands forward.</p>
+                    </div>
+                    <div class="flex gap-2" aria-label="Manifesto slider controls">
+                        <button type="button" class="manifesto-move min-h-11 min-w-11 border border-bauhaus-border font-mono text-lg hover:border-bauhaus-red" data-direction="-1" aria-label="Show previous studio manifesto cards">←</button>
+                        <button type="button" class="manifesto-move min-h-11 min-w-11 border border-bauhaus-border font-mono text-lg hover:border-bauhaus-red" data-direction="1" aria-label="Show next studio manifesto cards">→</button>
+                    </div>
+                </div>
+                <ul class="manifesto-track flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4" tabindex="0" aria-label="Swipe or scroll through ten Amir Studio manifesto cards">
+                    <li class="manifesto-card"><figure class="border border-bauhaus-border bg-neutral-900"><img src="asd/01.webp" alt="Small business. Big dreams." class="block w-full aspect-[9/16] object-cover" loading="lazy" decoding="async"><figcaption class="sr-only">Small business. Big dreams.</figcaption></figure></li>
+                    <li class="manifesto-card"><figure class="border border-bauhaus-border bg-neutral-900"><img src="asd/02.webp" alt="Your product deserves better." class="block w-full aspect-[9/16] object-cover" loading="lazy" decoding="async"><figcaption class="sr-only">Your product deserves better.</figcaption></figure></li>
+                    <li class="manifesto-card"><figure class="border border-bauhaus-border bg-neutral-900"><img src="asd/03.webp" alt="Stop looking like everyone." class="block w-full aspect-[9/16] object-cover" loading="lazy" decoding="async"><figcaption class="sr-only">Stop looking like everyone.</figcaption></figure></li>
+                    <li class="manifesto-card"><figure class="border border-bauhaus-border bg-neutral-900"><img src="asd/04.webp" alt="Make your brand impossible to ignore." class="block w-full aspect-[9/16] object-cover" loading="lazy" decoding="async"><figcaption class="sr-only">Make your brand impossible to ignore.</figcaption></figure></li>
+                    <li class="manifesto-card"><figure class="border border-bauhaus-border bg-neutral-900"><img src="asd/05.webp" alt="Good design works overtime." class="block w-full aspect-[9/16] object-cover" loading="lazy" decoding="async"><figcaption class="sr-only">Good design works overtime.</figcaption></figure></li>
+                    <li class="manifesto-card"><figure class="border border-bauhaus-border bg-neutral-900"><img src="asd/06.webp" alt="From local to legendary." class="block w-full aspect-[9/16] object-cover" loading="lazy" decoding="async"><figcaption class="sr-only">From local to legendary.</figcaption></figure></li>
+                    <li class="manifesto-card"><figure class="border border-bauhaus-border bg-neutral-900"><img src="asd/07.webp" alt="Your ideas deserve to escape." class="block w-full aspect-[9/16] object-cover" loading="lazy" decoding="async"><figcaption class="sr-only">Your ideas deserve to escape.</figcaption></figure></li>
+                    <li class="manifesto-card"><figure class="border border-bauhaus-border bg-neutral-900"><img src="asd/08.webp" alt="Look expensive. Think smart." class="block w-full aspect-[9/16] object-cover" loading="lazy" decoding="async"><figcaption class="sr-only">Look expensive. Think smart.</figcaption></figure></li>
+                    <li class="manifesto-card"><figure class="border border-bauhaus-border bg-neutral-900"><img src="asd/09.webp" alt="Less blabla. More brand." class="block w-full aspect-[9/16] object-cover" loading="lazy" decoding="async"><figcaption class="sr-only">Less blabla. More brand.</figcaption></figure></li>
+                    <li class="manifesto-card"><figure class="border border-bauhaus-border bg-neutral-900"><img src="asd/10.webp" alt="Engineering perception." class="block w-full aspect-[9/16] object-cover" loading="lazy" decoding="async"><figcaption class="sr-only">Engineering perception.</figcaption></figure></li>
+                </ul>
+                <p class="mt-3 font-mono text-[10px] text-neutral-500">SWIPE ON MOBILE · SCROLL OR USE THE ARROWS ON DESKTOP</p>
+            </div>
+        </section>
+
+        <section id="expertise" class="py-32 px-6 md:px-12 border-t border-bauhaus-border bg-bauhaus-dark/80 backdrop-blur-md">
+            <div class="max-w-7xl mx-auto">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 pb-6 border-b border-bauhaus-border">
+                    <div>
+                        <span class="font-mono text-xs text-bauhaus-red tracking-widest uppercase">02 // CAPABILITIES</span>
+                        <h2 class="font-bauhaus text-3xl md:text-5xl font-bold mt-2 uppercase">EXPERTISE & DISCIPLINES</h2>
+                    </div>
+                    <p class="font-mono text-xs text-neutral-400 mt-4 md:mt-0 max-w-xs">
+                        More than design. Building visual experiences that communicate clearly and perform effectively.
+                    </p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4" aria-label="Select a service to request a quote">
+                    <img src="services/brand-strategy.webp" alt="Brand Strategy" class="w-full border border-bauhaus-border hover:border-bauhaus-red transition-all duration-300" loading="lazy" decoding="async">
+                    <img src="services/brand-identity.webp" alt="Brand Identity" class="w-full border border-bauhaus-border hover:border-bauhaus-red transition-all duration-300" loading="lazy" decoding="async">
+                    <img src="services/creative-direction.webp" alt="Creative Direction" class="w-full border border-bauhaus-border hover:border-bauhaus-red transition-all duration-300" loading="lazy" decoding="async">
+                    <img src="services/3d-cgi.webp" alt="3D and CGI" class="w-full border border-bauhaus-border hover:border-bauhaus-red transition-all duration-300" loading="lazy" decoding="async">
+                    <img src="services/motion-design.webp" alt="Motion Design" class="w-full border border-bauhaus-border hover:border-bauhaus-red transition-all duration-300" loading="lazy" decoding="async">
+                    <img src="services/social-media-design.webp" alt="Social Media Design" class="w-full border border-bauhaus-border hover:border-bauhaus-red transition-all duration-300" loading="lazy" decoding="async">
+                    <img src="services/advertising-campaigns.webp" alt="Advertising and Campaigns" class="w-full border border-bauhaus-border hover:border-bauhaus-red transition-all duration-300" loading="lazy" decoding="async">
+                    <img src="services/product-branding.webp" alt="Product Branding" class="w-full border border-bauhaus-border hover:border-bauhaus-red transition-all duration-300" loading="lazy" decoding="async">
+                    <img src="services/packaging.webp" alt="Packaging" class="w-full border border-bauhaus-border hover:border-bauhaus-red transition-all duration-300" loading="lazy" decoding="async">
+                    <img src="services/real-estate-architecture.webp" alt="Real Estate and Architecture" class="w-full border border-bauhaus-border hover:border-bauhaus-red transition-all duration-300" loading="lazy" decoding="async">
+                    <img src="services/corporate-business-communication.webp" alt="Corporate and Business Communication" class="w-full border border-bauhaus-border hover:border-bauhaus-red transition-all duration-300" loading="lazy" decoding="async">
+                    <img src="services/presentation-pitch-deck.webp" alt="Presentation and Pitch Deck" class="w-full border border-bauhaus-border hover:border-bauhaus-red transition-all duration-300" loading="lazy" decoding="async">
+                    <img src="services/web-digital-experience.webp" alt="Web and Digital Experience" class="w-full border border-bauhaus-border hover:border-bauhaus-red transition-all duration-300" loading="lazy" decoding="async">
+                    <img src="services/photography-content-production.webp" alt="Photography and Content Production" class="w-full border border-bauhaus-border hover:border-bauhaus-red transition-all duration-300" loading="lazy" decoding="async">
+                    <img src="services/video-production.webp" alt="Video Production" class="w-full border border-bauhaus-border hover:border-bauhaus-red transition-all duration-300" loading="lazy" decoding="async">
+                    <img src="services/ai-creative-production.webp" alt="AI and Creative Production" class="w-full border border-bauhaus-border hover:border-bauhaus-red transition-all duration-300" loading="lazy" decoding="async">
+                    <img src="services/print-physical-branding.webp" alt="Print and Physical Branding" class="w-full border border-bauhaus-border hover:border-bauhaus-red transition-all duration-300" loading="lazy" decoding="async">
+                    <img src="services/merchandising.webp" alt="Merchandising" class="w-full border border-bauhaus-border hover:border-bauhaus-red transition-all duration-300" loading="lazy" decoding="async">
+                    <img src="services/environmental-branding.webp" alt="Environmental Branding" class="w-full border border-bauhaus-border hover:border-bauhaus-red transition-all duration-300" loading="lazy" decoding="async">
+                    <img src="services/brand-consulting.webp" alt="Brand Consulting" class="w-full border border-bauhaus-border hover:border-bauhaus-red transition-all duration-300" loading="lazy" decoding="async">
+                </div>
+            </div>
+        </section>
+
+        <section id="packages" class="py-32 px-6 md:px-12 border-t border-bauhaus-border bg-neutral-950/70">
+            <div class="max-w-7xl mx-auto">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 pb-6 border-b border-bauhaus-border">
+                    <div>
+                        <span class="font-mono text-xs text-bauhaus-yellow tracking-widest uppercase">03 // MONTHLY CONTENT</span>
+                        <h2 class="font-bauhaus text-3xl md:text-5xl font-bold mt-2 uppercase">CONTENT THAT MOVES BRANDS</h2>
+                    </div>
+                    <p class="font-mono text-xs text-neutral-400 mt-4 md:mt-0 max-w-sm">Monthly visual storytelling for brands in the Gulf. Packages are starting prices in AED; Saudi quotations are available in SAR.</p>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+                    <article class="border border-bauhaus-border p-7 md:p-8 bg-neutral-950 flex flex-col">
+                        <p class="font-mono text-xs text-neutral-400 tracking-widest">01 / CONSISTENCY</p>
+                        <h3 class="font-bauhaus text-2xl font-bold uppercase mt-3">Presence</h3>
+                        <p class="mt-5 font-bauhaus text-4xl font-bold">AED 3,500<span class="font-mono text-xs text-neutral-500"> / MONTH</span></p>
+                        <ul class="mt-7 space-y-3 text-sm text-neutral-300 flex-grow">
+                            <li>10 designed social posts</li><li>5 short-form videos (up to 30 sec)</li>
+                            <li>Monthly content direction and concepts</li><li>One consolidated revision round</li>
+                        </ul>
+                        <button type="button" class="package-art-toggle mt-8 mb-3 w-full text-left px-4 py-3 border border-bauhaus-border font-mono text-[11px] font-bold uppercase tracking-wider text-neutral-300 hover:border-bauhaus-red hover:text-bauhaus-red transition-colors" aria-expanded="false" aria-controls="presence-package-art">VIEW PACKAGE VISUAL <span aria-hidden="true">+</span></button>
+                        <div id="presence-package-art" class="package-art hidden mb-5">
+                            <img src="package-visuals/presence-in.webp" alt="Presence monthly content package: AED 3,500, with social posts and short-form videos" class="w-full border border-bauhaus-border" loading="lazy" decoding="async">
+                        </div>
+                        <a href="request-quote.html?service=Presence%20Monthly%20Content%20Package" class="mt-8 text-center px-5 py-4 border border-bauhaus-border font-mono text-xs font-bold uppercase tracking-wider hover:border-bauhaus-red hover:text-bauhaus-red transition-colors">REQUEST THIS PACKAGE</a>
+                    </article>
+                    <article class="border border-bauhaus-red p-7 md:p-8 bg-neutral-900/80 flex flex-col relative">
+                        <span class="absolute top-0 right-0 px-3 py-2 bg-bauhaus-red text-white font-mono text-[10px] font-bold tracking-wider">POPULAR</span>
+                        <p class="font-mono text-xs text-bauhaus-yellow tracking-widest">02 / STORYTELLING</p>
+                        <h3 class="font-bauhaus text-2xl font-bold uppercase mt-3">Momentum</h3>
+                        <p class="mt-5 font-bauhaus text-4xl font-bold">AED 8,500<span class="font-mono text-xs text-neutral-500"> / MONTH</span></p>
+                        <ul class="mt-7 space-y-3 text-sm text-neutral-300 flex-grow">
+                            <li>15 designed social posts</li><li>5 short-form videos (up to 30 sec)</li>
+                            <li>5 long-form videos (up to 3 min each)</li><li>Monthly content direction and concepts</li>
+                            <li>One consolidated revision round</li>
+                        </ul>
+                        <button type="button" class="package-art-toggle mt-8 mb-3 w-full text-left px-4 py-3 border border-bauhaus-border font-mono text-[11px] font-bold uppercase tracking-wider text-neutral-300 hover:border-bauhaus-red hover:text-bauhaus-red transition-colors" aria-expanded="false" aria-controls="momentum-package-art">VIEW PACKAGE VISUAL <span aria-hidden="true">+</span></button>
+                        <div id="momentum-package-art" class="package-art hidden mb-5">
+                            <img src="package-visuals/momentum-in.webp" alt="Momentum monthly content package: AED 8,500, with posts, short-form and long-form videos" class="w-full border border-bauhaus-border" loading="lazy" decoding="async">
+                        </div>
+                        <a href="request-quote.html?service=Momentum%20Monthly%20Content%20Package" class="mt-8 text-center px-5 py-4 bg-bauhaus-light text-bauhaus-dark font-mono text-xs font-bold uppercase tracking-wider hover:bg-bauhaus-red hover:text-white transition-colors">REQUEST THIS PACKAGE</a>
+                    </article>
+                    <article class="border border-bauhaus-border p-7 md:p-8 bg-neutral-950 flex flex-col">
+                        <p class="font-mono text-xs text-neutral-400 tracking-widest">03 / BRAND PRESENCE</p>
+                        <h3 class="font-bauhaus text-2xl font-bold uppercase mt-3">Signature</h3>
+                        <p class="mt-5 font-bauhaus text-4xl font-bold">AED 12,500<span class="font-mono text-xs text-neutral-500"> / MONTH</span></p>
+                        <ul class="mt-7 space-y-3 text-sm text-neutral-300 flex-grow">
+                            <li>20 designed social posts</li><li>10 short-form videos (up to 30 sec)</li>
+                            <li>5 long-form videos (up to 3 min each)</li><li>Monthly content direction and concepts</li>
+                            <li>One consolidated revision round</li>
+                        </ul>
+                        <button type="button" class="package-art-toggle mt-8 mb-3 w-full text-left px-4 py-3 border border-bauhaus-border font-mono text-[11px] font-bold uppercase tracking-wider text-neutral-300 hover:border-bauhaus-red hover:text-bauhaus-red transition-colors" aria-expanded="false" aria-controls="signature-package-art">VIEW PACKAGE VISUAL <span aria-hidden="true">+</span></button>
+                        <div id="signature-package-art" class="package-art hidden mb-5">
+                            <img src="package-visuals/signature-in.webp" alt="Signature monthly content package: AED 12,500, with social posts and video production" class="w-full border border-bauhaus-border" loading="lazy" decoding="async">
+                        </div>
+                        <a href="request-quote.html?service=Signature%20Monthly%20Content%20Package" class="mt-8 text-center px-5 py-4 border border-bauhaus-border font-mono text-xs font-bold uppercase tracking-wider hover:border-bauhaus-red hover:text-bauhaus-red transition-colors">REQUEST THIS PACKAGE</a>
+                    </article>
+                </div>
+                <p class="mt-6 max-w-4xl font-mono text-[11px] leading-relaxed text-neutral-400">All prices are monthly starting rates in AED; KSA proposals can be quoted in SAR. Includes concept development, design/editing, delivery-ready files and one consolidated revision round. Video editing uses client-supplied footage and brand assets. Filming, talent, publishing, paid media, account management and Arabic translation are quoted separately. We confirm the final schedule and scope after a brief.</p>
+            </div>
+        </section>
+
+        <section id="projects" class="py-32 px-6 md:px-12 border-t border-bauhaus-border">
+            <div class="max-w-7xl mx-auto">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 pb-6 border-b border-bauhaus-border">
+                    <div>
+                        <span class="font-mono text-xs text-bauhaus-yellow tracking-widest uppercase">04 // SELECTED WORKS</span>
+                        <h2 class="font-bauhaus text-3xl md:text-5xl font-bold mt-2 uppercase">FEATURED PROJECTS</h2>
+                    </div>
+                    <p class="font-mono text-xs text-neutral-400 mt-4 md:mt-0 max-w-xs leading-relaxed">
+                        Selected client work across real estate, food, retail, brand identity and CGI. Each project shows the creative scope and market.
+                    </p>
+                </div>
+
+                <div class="space-y-16">
+                    <!-- Project 1: Clavel Compound -->
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center border border-bauhaus-border p-6 md:p-10 bg-neutral-950/30 hover:border-bauhaus-red transition-all group">
+                        <div class="lg:col-span-7 space-y-6">
+                            <div class="flex items-center space-x-3 font-mono text-xs">
+                                <span class="px-2.5 py-1 bg-bauhaus-red text-white font-bold">REAL ESTATE / ART DIRECTION</span>
+                                <span class="text-neutral-400">2023 – 2025</span>
+                            </div>
+                            <h3 class="font-bauhaus text-4xl md:text-5xl font-bold uppercase tracking-tight group-hover:text-bauhaus-red transition-colors">CLAVEL COMPOUND // NEW ZAYED</h3>
+                            <p class="text-neutral-400 text-base leading-relaxed font-light">
+                                Led comprehensive creative direction for EDIC real estate campaigns. Developed high-end architectural visualisations, billboard concepts, CGI renders, and promotional video assets.
+                            </p>
+                            <div class="grid grid-cols-3 gap-4 pt-4 border-t border-bauhaus-border/50 font-mono text-xs text-neutral-400">
+                                <div>CLIENT<br><span class="text-bauhaus-light font-bold">EDIC DEVELOPMENTS</span></div>
+                                <div>SCOPE<br><span class="text-bauhaus-light font-bold">MARKETING ART DIRECTION</span></div>
+                                <div>MARKET<br><span class="text-bauhaus-light font-bold">EGYPT (NEW ZAYED)</span></div>
+                            </div>
+                        </div>
+                        <div class="lg:col-span-5 h-[350px] md:h-[420px] bg-neutral-900 border border-bauhaus-border relative overflow-hidden flex items-center justify-center">
+                            <img src="clavel.jpg" alt="Clavel Compound real estate campaign visual" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" decoding="async">
+                        </div>
+                    </div>
+
+                    <!-- Project 2: Bab Rizq -->
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center border border-bauhaus-border p-6 md:p-10 bg-neutral-950/30 hover:border-bauhaus-blue transition-all group">
+                        <div class="lg:col-span-7 space-y-6">
+                            <div class="flex items-center space-x-3 font-mono text-xs">
+                                <span class="px-2.5 py-1 bg-bauhaus-blue text-white font-bold">BRAND IDENTITY / DAIRY ENTERPRISE</span>
+                                <span class="text-neutral-400">2024 – 2026</span>
+                            </div>
+                            <h3 class="font-bauhaus text-4xl md:text-5xl font-bold uppercase tracking-tight group-hover:text-bauhaus-blue transition-colors">BAB RIZQ SPATIAL & BRANDING</h3>
+                            <p class="text-neutral-400 text-base leading-relaxed font-light">
+                                Designed complete brand identity guidelines, storefront architecture, custom typography (Tajawtl / Bab Rizq Typeface), packaging, and store facade 3D renders using royal blue as the primary corporate palette.
+                            </p>
+                            <div class="grid grid-cols-3 gap-4 pt-4 border-t border-bauhaus-border/50 font-mono text-xs text-neutral-400">
+                                <div>CLIENT<br><span class="text-bauhaus-light font-bold">BAB RIZQ FOUNDATION</span></div>
+                                <div>PALETTE<br><span class="text-bauhaus-light font-bold">ROYAL BLUE & WHITE</span></div>
+                                <div>DELIVERABLE<br><span class="text-bauhaus-light font-bold">IDENTITY & PACKAGING</span></div>
+                            </div>
+                        </div>
+                        <div class="lg:col-span-5 h-[350px] md:h-[420px] bg-neutral-900 border border-bauhaus-border relative overflow-hidden flex items-center justify-center">
+                            <img src="babrizq.jpg" alt="Bab Rizq brand identity and retail visual" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" decoding="async">
+                        </div>
+                    </div>
+
+                    <!-- Project 3: Al Qaswaa -->
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center border border-bauhaus-border p-6 md:p-10 bg-neutral-950/30 hover:border-bauhaus-yellow transition-all group">
+                        <div class="lg:col-span-7 space-y-6">
+                            <div class="flex items-center space-x-3 font-mono text-xs">
+                                <span class="px-2.5 py-1 bg-bauhaus-yellow text-bauhaus-dark font-bold">FOOD & RETAIL / BRANDING</span>
+                                <span class="text-neutral-400">2026</span>
+                            </div>
+                            <h3 class="font-bauhaus text-4xl md:text-5xl font-bold uppercase tracking-tight group-hover:text-bauhaus-yellow transition-colors">AL QASWAA FOODS</h3>
+                            <p class="text-neutral-400 text-base leading-relaxed font-light">
+                                Developed camel-inspired logo geometry, brand boards, luxury gourmet dates packaging, and 3D signage renders for outdoor advertising and retail distribution.
+                            </p>
+                            <div class="grid grid-cols-3 gap-4 pt-4 border-t border-bauhaus-border/50 font-mono text-xs text-neutral-400">
+                                <div>CLIENT<br><span class="text-bauhaus-light font-bold">AL QASWAA</span></div>
+                                <div>SCOPE<br><span class="text-bauhaus-light font-bold">PACKAGING & IDENTITY</span></div>
+                                <div>TYPOGRAPHY<br><span class="text-bauhaus-light font-bold">TAJAWAL BOLD</span></div>
+                            </div>
+                        </div>
+                        <div class="lg:col-span-5 h-[350px] md:h-[420px] bg-neutral-900 border border-bauhaus-border relative overflow-hidden flex items-center justify-center">
+                            <img src="alqaswaa.jpg" alt="Al Qaswaa Foods identity and packaging visual" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" decoding="async">
+                        </div>
+                    </div>
+                    <!-- Marketing Beyond Ads campaign gallery -->
+                    <article class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center border border-bauhaus-border p-6 md:p-10 bg-neutral-950/30 hover:border-bauhaus-red transition-colors">
+                        <div class="lg:col-span-7 space-y-6">
+                            <div class="flex flex-wrap items-center gap-3 font-mono text-xs">
+                                <span class="px-2.5 py-1 bg-bauhaus-red text-white font-bold">MARKETING / MOTION SERIES</span>
+                                <span class="text-neutral-400">EDITORIAL CONTENT</span>
+                            </div>
+                            <h3 class="font-bauhaus text-4xl md:text-5xl font-bold uppercase tracking-tight">MARKETING<br><span class="text-bauhaus-red">BEYOND ADS</span></h3>
+                            <p class="text-neutral-400 text-base leading-relaxed font-light">A cinematic content series translating essential marketing, business, leadership and brand-building principles into clear visual stories.</p>
+                            <div class="grid grid-cols-3 gap-3 pt-4 border-t border-bauhaus-border/50 font-mono text-xs text-neutral-400">
+                                <div><span class="block text-2xl text-bauhaus-light font-bold">23</span>IDEAS</div>
+                                <div><span class="block text-2xl text-bauhaus-light font-bold">23</span>VISUALS</div>
+                                <div><span class="block text-2xl text-bauhaus-light font-bold">23</span>MOTION PIECES</div>
+                            </div>
+                            <p class="font-mono text-[11px] leading-relaxed text-neutral-500">CREATIVE DIRECTION · VISUAL STORYTELLING · MOTION DESIGN</p>
+                            <a href="request-quote.html?service=Marketing%20Beyond%20Ads%20content%20series" class="inline-flex min-h-11 items-center justify-center px-5 py-3 border border-bauhaus-border font-mono text-xs font-bold uppercase tracking-wider hover:border-bauhaus-red hover:text-bauhaus-red transition-colors">DISCUSS A SIMILAR SERIES</a>
+                        </div>
+                        <div class="lg:col-span-5 border border-bauhaus-border bg-bauhaus-dark p-4 md:p-5">
+                            <div class="flex items-center justify-between gap-3 mb-4">
+                                <span class="font-mono text-[10px] tracking-[.16em] text-neutral-400">AMIR STUDIO / VISUAL SERIES 01—23</span>
+                                <span class="font-mono text-[10px] text-bauhaus-red">23 VISUALS</span>
+                            </div>
+                            <div class="grid grid-cols-3 gap-2">
+                                <img src="23/1.webp" alt="Marketing Beyond Ads visual 1: the biggest myth in business" class="w-full aspect-[9/16] object-cover border border-bauhaus-border" loading="lazy" decoding="async">
+                                <img src="23/4.webp" alt="Marketing Beyond Ads visual 4: marketing is more than paid ads" class="w-full aspect-[9/16] object-cover border border-bauhaus-border" loading="lazy" decoding="async">
+                                <img src="23/23.webp" alt="Marketing Beyond Ads visual 23: take your brand to the next level" class="w-full aspect-[9/16] object-cover border border-bauhaus-border" loading="lazy" decoding="async">
+                            </div>
+                            <button id="open-campaign-gallery" type="button" class="mt-4 w-full min-h-11 border border-bauhaus-border px-4 py-3 font-mono text-xs font-bold uppercase tracking-wider hover:border-bauhaus-red hover:text-bauhaus-red transition-colors">VIEW ALL 23 VISUALS</button>
+                        </div>
+                    </article>
+                </div>
+
+
+            </div>
+        </section>
+
+        <section id="clients" class="py-24 px-6 md:px-12 border-t border-bauhaus-border bg-bauhaus-dark/80" aria-labelledby="clients-title">
+            <div class="max-w-7xl mx-auto">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 pb-6 border-b border-bauhaus-border">
+                    <div><span class="font-mono text-xs text-bauhaus-yellow tracking-widest uppercase">05 // CLIENTS & BRAND WORK</span>
+                        <h2 id="clients-title" class="font-bauhaus text-3xl md:text-5xl font-bold mt-2 uppercase">MORE CLIENTS & IDENTITIES</h2>
+                    </div><p class="font-mono text-xs text-neutral-400 mt-4 md:mt-0 max-w-sm">A wider selection of client identities and brand projects, organized in one place.</p>
+                </div>
+                <ul class="client-grid" aria-label="More portfolio clients and brand identities"><li class="client-grid-card"><img src="clients/portfolio/brand-02.webp" alt="Aunty Didi's Kitchen logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                        <li class="client-grid-card"><img src="clients/portfolio/brand-07.webp" alt="ECOMODA logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                        <li class="client-grid-card"><img src="clients/portfolio/brand-08.webp" alt="My Education logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                        <li class="client-grid-card"><img src="clients/portfolio/brand-10.webp" alt="Fares Photographer logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                        <li class="client-grid-card"><img src="clients/portfolio/brand-12.webp" alt="Genesis AI logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                        <li class="client-grid-card"><img src="clients/portfolio/brand-13.webp" alt="Leap Cosmeceuticals logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                        <li class="client-grid-card"><img src="clients/portfolio/brand-14.webp" alt="Medical Vision logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                        <li class="client-grid-card"><img src="clients/portfolio/brand-16.webp" alt="Red Line logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                        <li class="client-grid-card"><img src="clients/portfolio/brand-17.webp" alt="REXSOL USA logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                        <li class="client-grid-card"><img src="clients/portfolio/brand-18.webp" alt="3D Architecture logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                        <li class="client-grid-card"><img src="clients/portfolio/brand-19.webp" alt="Soula logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                        <li class="client-grid-card"><img src="clients/portfolio/brand-20.webp" alt="Dermedics logo" width="480" height="480" loading="lazy" decoding="async"></li></ul>
+                <details class="client-more mt-5 border border-bauhaus-border">
+                    <summary class="min-h-14 px-5 py-4 cursor-pointer font-mono text-xs font-bold tracking-wider hover:text-bauhaus-red focus-visible:outline focus-visible:outline-2 focus-visible:outline-bauhaus-yellow">VIEW ALL 32 MORE BRANDS</summary>
+                    <ul class="client-grid px-4 pb-5" aria-label="Additional portfolio clients and brand identities"><li class="client-grid-card"><img src="clients/portfolio/brand-21.webp" alt="Dr. SAFE logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                            <li class="client-grid-card"><img src="clients/portfolio/brand-22.webp" alt="f.b Group logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                            <li class="client-grid-card"><img src="clients/portfolio/brand-23.webp" alt="Mashawiyat Hadouta logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                            <li class="client-grid-card"><img src="clients/portfolio/brand-24.webp" alt="Nespresso logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                            <li class="client-grid-card"><img src="clients/portfolio/brand-25.webp" alt="Nopian Cafe & Restaurant logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                            <li class="client-grid-card"><img src="clients/portfolio/brand-26.webp" alt="Studio 57 logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                            <li class="client-grid-card"><img src="clients/portfolio/brand-27.webp" alt="Zina Logistics logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                            <li class="client-grid-card"><img src="clients/portfolio/brand-28.webp" alt="Food Brand Identity logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                            <li class="client-grid-card"><img src="clients/portfolio/brand-29.webp" alt="Heart Care logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                            <li class="client-grid-card"><img src="clients/portfolio/brand-30.webp" alt="ENZO logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                            <li class="client-grid-card"><img src="clients/portfolio/brand-32.webp" alt="FFA logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                            <li class="client-grid-card"><img src="clients/portfolio/brand-33.webp" alt="IPETEX Studios logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                            <li class="client-grid-card"><img src="clients/portfolio/brand-34.webp" alt="Lamoda Fashion Expo logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                            <li class="client-grid-card"><img src="clients/portfolio/brand-35.webp" alt="Nodha Laundry Care logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                            <li class="client-grid-card"><img src="clients/portfolio/brand-36.webp" alt="Pemela Learning Centre logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                            <li class="client-grid-card"><img src="clients/portfolio/brand-37.webp" alt="Additional Skills logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                            <li class="client-grid-card"><img src="clients/portfolio/brand-38.webp" alt="Luminary Events logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                            <li class="client-grid-card"><img src="clients/portfolio/brand-39.webp" alt="Mink logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                            <li class="client-grid-card"><img src="clients/portfolio/brand-40.webp" alt="Outface logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                            <li class="client-grid-card"><img src="clients/portfolio/brand-41.webp" alt="Programmes logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                            <li class="client-grid-card"><img src="clients/portfolio/brand-43.webp" alt="Angle Guides logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                            <li class="client-grid-card"><img src="clients/portfolio/brand-44.webp" alt="StarTimes logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                            <li class="client-grid-card"><img src="clients/portfolio/brand-45.webp" alt="SVR logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                            <li class="client-grid-card"><img src="clients/portfolio/brand-46.webp" alt="TCS logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                            <li class="client-grid-card"><img src="clients/portfolio/brand-47.webp" alt="Xiaomi logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                            <li class="client-grid-card"><img src="clients/portfolio/brand-48.webp" alt="Pukka New Capital logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                            <li class="client-grid-card"><img src="clients/portfolio/brand-49.webp" alt="Limelight News logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                            <li class="client-grid-card"><img src="clients/portfolio/brand-50.webp" alt="Soula Animated Series logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                            <li class="client-grid-card"><img src="clients/portfolio/brand-51.webp" alt="Basant & Diasty logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                            <li class="client-grid-card"><img src="clients/portfolio/brand-52.webp" alt="3D Animation Studio logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                            <li class="client-grid-card"><img src="clients/portfolio/brand-53.webp" alt="Melatime Sunscreen logo" width="480" height="480" loading="lazy" decoding="async"></li>
+                            <li class="client-grid-card"><img src="clients/portfolio/brand-54.webp" alt="Nawader Altharwat Real Estate logo" width="480" height="480" loading="lazy" decoding="async"></li></ul>
+                </details>
+            </div>
+        </section>
+
+        <section id="about" class="py-24 lg:py-28 px-6 md:px-12 border-t border-bauhaus-border bg-bauhaus-dark/90" aria-labelledby="about-title">
+            <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 xl:gap-14 items-stretch">
+                <div class="lg:col-span-5 flex flex-col">
+                    <span class="font-mono text-xs text-bauhaus-red tracking-widest uppercase">06 // ABOUT AMIR</span>
+                    <h2 id="about-title" class="font-bauhaus text-4xl sm:text-5xl xl:text-6xl font-bold uppercase leading-[.98] tracking-tight mt-5">
+                        BUILT ON CRAFT.<br>BACKED BY <span class="text-bauhaus-red">18+ YEARS.</span>
+                    </h2>
+                    <p class="mt-6 text-neutral-300 font-light leading-relaxed max-w-xl">
+                        Amir Gomaa is a creative director and CGI specialist, combining strategic thinking with hands-on visual production across brand, motion and 3D work.
+                    </p>
+                    <ol class="mt-8 border-t border-bauhaus-border" aria-label="Career and education highlights">
+                        <li class="grid grid-cols-[2.5rem_1fr] gap-3 py-4 border-b border-bauhaus-border/70">
+                            <span class="font-mono text-[10px] text-bauhaus-red pt-1">01</span>
+                            <div><h3 class="font-mono text-[10px] tracking-widest text-neutral-500">EDUCATION</h3><p class="mt-1 text-sm text-bauhaus-light">Faculty of Art Education · Helwan University</p></div>
+                        </li>
+                        <li class="grid grid-cols-[2.5rem_1fr] gap-3 py-4 border-b border-bauhaus-border/70">
+                            <span class="font-mono text-[10px] text-bauhaus-red pt-1">02</span>
+                            <div><h3 class="font-mono text-[10px] tracking-widest text-neutral-500">3D LEADERSHIP</h3><p class="mt-1 text-sm text-bauhaus-light">Lead 3D Artist · Cord Digital</p></div>
+                        </li>
+                        <li class="grid grid-cols-[2.5rem_1fr] gap-3 py-4 border-b border-bauhaus-border/70">
+                            <span class="font-mono text-[10px] text-bauhaus-red pt-1">03</span>
+                            <div><h3 class="font-mono text-[10px] tracking-widest text-neutral-500">ART DIRECTION</h3><p class="mt-1 text-sm text-bauhaus-light">Marketing Art Director · EDIC</p></div>
+                        </li>
+                        <li class="grid grid-cols-[2.5rem_1fr] gap-3 py-4 border-b border-bauhaus-border/70">
+                            <span class="font-mono text-[10px] text-bauhaus-red pt-1">04</span>
+                            <div><h3 class="font-mono text-[10px] tracking-widest text-neutral-500">ANIMATION MILESTONE</h3><p class="mt-1 text-sm text-bauhaus-light">Early Egyptian lip-sync animation · Basant & Diyasty</p></div>
+                        </li>
+                    </ol>
+                    <div class="mt-auto pt-6 grid grid-cols-2 gap-3">
+                        <div class="border border-bauhaus-border bg-neutral-950/70 p-4">
+                            <span class="block font-bauhaus text-3xl font-bold text-bauhaus-light">18+</span>
+                            <span class="mt-1 block font-mono text-[9px] sm:text-[10px] tracking-wider text-neutral-500">YEARS OF EXPERIENCE</span>
+                        </div>
+                        <div class="border border-bauhaus-border bg-neutral-950/70 p-4">
+                            <span class="block font-bauhaus text-3xl font-bold text-bauhaus-light">100+</span>
+                            <span class="mt-1 block font-mono text-[9px] sm:text-[10px] tracking-wider text-neutral-500">REGIONAL PROJECTS</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-7 relative overflow-hidden border border-bauhaus-border bg-neutral-950 p-5 sm:p-7 xl:p-9">
+                    <div aria-hidden="true" class="absolute -top-24 -right-20 w-64 h-64 rounded-full bg-bauhaus-yellow/5 pointer-events-none"></div>
+                    <div class="relative">
+                        <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 pb-5 border-b border-bauhaus-border">
+                            <div>
+                                <span class="font-mono text-[10px] text-bauhaus-red tracking-widest uppercase">TOOLS // PRODUCTION</span>
+                                <h3 class="font-bauhaus text-2xl md:text-3xl font-bold uppercase mt-2">THE CREATIVE TOOLKIT</h3>
+                            </div>
+                            <p class="font-mono text-[10px] text-neutral-500 max-w-xs leading-relaxed">A focused stack for taking a visual idea from first sketch to final delivery.</p>
+                        </div>
+                        <ul class="mt-5 grid grid-cols-2 gap-3" aria-label="Software and production tools">
+                            <li class="min-h-[142px] flex flex-col justify-between border border-bauhaus-border bg-neutral-900/80 p-4 hover:border-bauhaus-red transition-colors">
+                                <span class="font-mono text-[9px] text-bauhaus-red tracking-widest">01 / 3D & ANIMATION</span>
+                                <div><h4 class="font-mono text-xs sm:text-sm font-bold text-bauhaus-light leading-snug">3DS MAX · BLENDER</h4><p class="mt-2 text-[11px] leading-relaxed text-neutral-400">Modeling and animation</p></div>
+                            </li>
+                            <li class="min-h-[142px] flex flex-col justify-between border border-bauhaus-border bg-neutral-900/80 p-4 hover:border-bauhaus-red transition-colors">
+                                <span class="font-mono text-[9px] text-bauhaus-red tracking-widest">02 / RENDERING</span>
+                                <div><h4 class="font-mono text-xs sm:text-sm font-bold text-bauhaus-light leading-snug">V-RAY · CINEMA 4D</h4><p class="mt-2 text-[11px] leading-relaxed text-neutral-400">Photorealistic visualization</p></div>
+                            </li>
+                            <li class="min-h-[142px] flex flex-col justify-between border border-bauhaus-border bg-neutral-900/80 p-4 hover:border-bauhaus-red transition-colors">
+                                <span class="font-mono text-[9px] text-bauhaus-red tracking-widest">03 / DESIGN</span>
+                                <div><h4 class="font-mono text-xs sm:text-sm font-bold text-bauhaus-light leading-snug">ADOBE CREATIVE SUITE</h4><p class="mt-2 text-[11px] leading-relaxed text-neutral-400">Photoshop · Illustrator · InDesign</p></div>
+                            </li>
+                            <li class="min-h-[142px] flex flex-col justify-between border border-bauhaus-border bg-neutral-900/80 p-4 hover:border-bauhaus-red transition-colors">
+                                <span class="font-mono text-[9px] text-bauhaus-red tracking-widest">04 / MOTION & EDITING</span>
+                                <div><h4 class="font-mono text-xs sm:text-sm font-bold text-bauhaus-light leading-snug">AFTER EFFECTS · PREMIERE PRO</h4><p class="mt-2 text-[11px] leading-relaxed text-neutral-400">Motion graphics and video</p></div>
+                            </li>
+                            <li class="min-h-[142px] flex flex-col justify-between border border-bauhaus-border bg-neutral-900/80 p-4 hover:border-bauhaus-red transition-colors">
+                                <span class="font-mono text-[9px] text-bauhaus-red tracking-widest">05 / DIGITAL</span>
+                                <div><h4 class="font-mono text-xs sm:text-sm font-bold text-bauhaus-light leading-snug">FIGMA</h4><p class="mt-2 text-[11px] leading-relaxed text-neutral-400">UI/UX and presentations</p></div>
+                            </li>
+                            <li class="min-h-[142px] flex flex-col justify-between border border-bauhaus-border bg-neutral-900/80 p-4 hover:border-bauhaus-red transition-colors">
+                                <span class="font-mono text-[9px] text-bauhaus-red tracking-widest">06 / EMERGING TOOLS</span>
+                                <div><h4 class="font-mono text-xs sm:text-sm font-bold text-bauhaus-light leading-snug">GENERATIVE AI</h4><p class="mt-2 text-[11px] leading-relaxed text-neutral-400">Midjourney and advanced tools</p></div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="py-32 px-6 md:px-12 border-t border-bauhaus-border bg-neutral-950">
+            <div class="max-w-4xl mx-auto text-center space-y-8">
+                <span class="font-mono text-xs text-bauhaus-red tracking-widest uppercase">07 // COLLABORATION</span>
+                <h2 class="font-bauhaus text-5xl md:text-7xl font-bold uppercase tracking-tight">LET'S BUILD SOMETHING <span class="text-bauhaus-red">EXTRAORDINARY.</span></h2>
+                <p class="text-neutral-400 max-w-xl mx-auto font-light text-base md:text-lg">
+                    Looking for brand identity, CGI art direction, motion content or a monthly content partner? Tell us your goals and we’ll recommend the right scope.
+                </p>
+                <div class="pt-6 font-mono text-sm space-y-4">
+                    <p class="text-bauhaus-light font-bold"><a href="tel:+201018854164" class="hover:text-bauhaus-red transition-colors">CALL: +20 101 885 4164</a></p>
+                    <a href="https://wa.me/201018854164?text=Hello%20Amir%20Studio%2C%20I%27d%20like%20to%20discuss%20a%20project." target="_blank" rel="noopener noreferrer" class="inline-flex min-h-11 items-center justify-center px-6 py-3 border border-bauhaus-border text-bauhaus-light font-mono text-xs font-bold uppercase tracking-wider hover:border-bauhaus-red hover:text-bauhaus-red transition-colors">MESSAGE ON WHATSAPP</a>
+                    <a href="mailto:info.amirstudioa@gmail.com" class="inline-flex items-center justify-center gap-3 px-8 py-5 bg-bauhaus-light text-bauhaus-dark font-mono text-sm font-bold uppercase tracking-wider hover:bg-bauhaus-red hover:text-white transition-all duration-300">
+                        <svg aria-hidden="true" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="1.5"></rect><path d="m4 7 8 6 8-6"></path></svg>
+                        <span>INFO.AMIRSTUDIOA@GMAIL.COM</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="py-12 px-6 md:px-12 border-t border-bauhaus-border flex flex-col md:flex-row justify-between items-center font-mono text-xs text-neutral-500 space-y-4 md:space-y-0">
+            <div>© 2026 AMIR STUDIO. ALL RIGHTS RESERVED.</div>
+            <div class="flex flex-wrap justify-center gap-x-6 gap-y-3">
+                <a href="mailto:info.amirstudioa@gmail.com" class="hover:text-bauhaus-red transition-colors">EMAIL</a>
+                <a href="https://wa.me/201018854164" target="_blank" rel="noopener noreferrer" class="hover:text-bauhaus-red transition-colors">WHATSAPP</a>
+            </div>
+            <div>SWISS GRID // BAUHAUS 3.0</div>
+        </footer>
+
+    </div>
+
+    <dialog id="campaign-gallery" aria-labelledby="campaign-gallery-title" class="border border-bauhaus-border bg-neutral-950 p-4 md:p-7 text-neutral-100">
+        <div class="flex items-start justify-between gap-5 border-b border-bauhaus-border pb-4 mb-5">
+            <div>
+                <span class="font-mono text-xs text-bauhaus-red tracking-widest">AMIR STUDIO / SERIES 01—23</span>
+                <h2 id="campaign-gallery-title" class="font-bauhaus text-2xl md:text-4xl font-bold uppercase mt-2">Marketing Beyond Ads</h2>
+                <p class="font-mono text-xs text-neutral-400 mt-2">23 visual stories · 22 motion clips</p>
+            </div>
+            <button id="close-campaign-gallery" type="button" class="min-h-11 min-w-11 border border-bauhaus-border px-3 font-mono text-xs font-bold hover:border-bauhaus-red" aria-label="Close gallery">CLOSE</button>
+        </div>
+        <div class="max-h-[70dvh] overflow-y-auto pr-1">
+            <div id="campaign-gallery-grid" class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3"></div>
+            <section class="mt-8 border-t border-bauhaus-border pt-6">
+                <div class="mb-4">
+                    <h3 class="font-bauhaus text-xl md:text-2xl font-bold uppercase">Motion Pieces</h3>
+                    <p class="font-mono text-xs text-neutral-400 mt-1">Select play to preview each motion piece.</p>
+                </div>
+                <div id="campaign-video-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+            </section>
+        </div>
+    </dialog>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            const clientMarquee = document.querySelector('.client-marquee');
+            const clientMotionToggle = document.querySelector('.client-logo-motion-toggle');
+            const clientMotionStatus = document.querySelector('.client-motion-status');
+            clientMotionToggle?.addEventListener('click', () => {
+                const paused = clientMarquee?.classList.toggle('is-paused') ?? false;
+                clientMotionToggle.setAttribute('aria-pressed', String(paused));
+                clientMotionToggle.textContent = paused ? 'RESUME MOTION' : 'PAUSE MOTION';
+                if (clientMotionStatus) clientMotionStatus.textContent = paused ? 'Logo motion paused.' : 'Logo motion resumed.';
+            });
+
+            document.querySelectorAll('#expertise img[src^="services/"]').forEach((banner) => {
+                const highResolutionBanner = banner.getAttribute('src');
+                banner.src = highResolutionBanner;
+                banner.classList.add('cursor-pointer');
+                banner.setAttribute('role', 'link');
+                banner.setAttribute('tabindex', '0');
+
+                const openQuoteRequest = () => {
+                    const query = new URLSearchParams({
+                        service: banner.alt,
+                        banner: highResolutionBanner
+                    });
+                    window.location.href = `request-quote.html?${query.toString()}`;
+                };
+
+                banner.addEventListener('click', openQuoteRequest);
+                banner.addEventListener('keydown', (event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        openQuoteRequest();
+                    }
+                });
+            });
+
+
+            const manifestoTrack = document.querySelector('.manifesto-track');
+            document.querySelectorAll('.manifesto-move').forEach((button) => {
+                button.addEventListener('click', () => {
+                    if (!manifestoTrack) return;
+                    const card = manifestoTrack.querySelector('.manifesto-card');
+                    const distance = card ? card.getBoundingClientRect().width + 16 : manifestoTrack.clientWidth * 0.8;
+                    manifestoTrack.scrollBy({ left: distance * Number(button.dataset.direction || 1), behavior: prefersReducedMotion ? 'auto' : 'smooth' });
+                });
+            });
+
+            const servicePreviewAssets = [
+                'asd/03.webp', 'asd/09.webp', 'asd/10.webp', 'asd/06.webp', 'asd/02.webp',
+                'asd/07.webp', 'asd/04.webp', 'asd/02.webp', 'asd/05.webp', 'asd/06.webp'
+            ];
+            const servicePreview = document.createElement('img');
+            servicePreview.className = 'service-hover-preview';
+            servicePreview.alt = '';
+            servicePreview.setAttribute('aria-hidden', 'true');
+            document.body.appendChild(servicePreview);
+            let previewTarget = null;
+            function moveServicePreview(event) {
+                if (!previewTarget) return;
+                const x = Math.min(window.innerWidth - 130, Math.max(130, event.clientX + 150));
+                const y = Math.min(window.innerHeight - 150, Math.max(150, event.clientY));
+                servicePreview.style.left = `${x}px`;
+                servicePreview.style.top = `${y}px`;
+            }
+            function showServicePreview(event) {
+                if (prefersReducedMotion || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+                const banner = event.currentTarget;
+                const allBanners = [...document.querySelectorAll('#expertise img[src^="services/"]')];
+                const index = allBanners.indexOf(banner);
+                if (index < 0) return;
+                previewTarget = banner;
+                servicePreview.src = servicePreviewAssets[index % servicePreviewAssets.length];
+                servicePreview.classList.add('is-visible');
+                moveServicePreview(event);
+            }
+            function hideServicePreview() {
+                previewTarget = null;
+                servicePreview.classList.remove('is-visible');
+            }
+            document.querySelectorAll('#expertise img[src^="services/"]').forEach((banner) => {
+                banner.addEventListener('pointerenter', showServicePreview);
+                banner.addEventListener('pointermove', moveServicePreview);
+                banner.addEventListener('pointerleave', hideServicePreview);
+            });
+
+            const campaignGallery = document.getElementById('campaign-gallery');
+            let campaignGalleryLoaded = false;
+            function populateCampaignGallery() {
+                if (campaignGalleryLoaded) return;
+                campaignGalleryLoaded = true;
+                const campaignGalleryGrid = document.getElementById('campaign-gallery-grid');
+                const campaignVideoGrid = document.getElementById('campaign-video-grid');
+                for (let number = 1; number <= 23; number += 1) {
+                    const imagePath = `23/${number}.webp`;
+                    const imageLink = document.createElement('a');
+                    imageLink.href = imagePath;
+                    imageLink.target = '_blank';
+                    imageLink.rel = 'noopener noreferrer';
+                    imageLink.className = 'block border border-bauhaus-border hover:border-bauhaus-red transition-colors';
+                    imageLink.setAttribute('aria-label', `Open Marketing Beyond Ads visual ${number} full size`);
+
+                    const image = document.createElement('img');
+                    image.src = imagePath;
+                    image.alt = `Marketing Beyond Ads visual ${number}`;
+                    image.loading = 'lazy';
+                    image.decoding = 'async';
+                    image.className = 'w-full aspect-[9/16] object-cover';
+                    imageLink.appendChild(image);
+                    campaignGalleryGrid.appendChild(imageLink);
+                }
+                for (let number = 1; number <= 22; number += 1) {
+                    const card = document.createElement('div');
+                    card.className = 'border border-bauhaus-border bg-neutral-900 p-2';
+                    const label = document.createElement('p');
+                    label.className = 'mb-2 px-1 font-mono text-[10px] tracking-wider text-neutral-400';
+                    label.textContent = `MOTION STUDY ${String(number).padStart(2, '0')}`;
+                    const video = document.createElement('video');
+                    video.controls = true;
+                    video.preload = 'none';
+                    video.playsInline = true;
+                    video.className = 'w-full aspect-[9/16] bg-black object-contain';
+                    video.setAttribute('aria-label', `Marketing Beyond Ads motion study ${number}`);
+                    const source = document.createElement('source');
+                    source.src = `23/videos/motion-${String(number).padStart(2, '0')}.mp4`;
+                    source.type = 'video/mp4';
+                    video.appendChild(source);
+                    card.append(label, video);
+                    campaignVideoGrid.appendChild(card);
+                }
+            }
+            document.getElementById('open-campaign-gallery')?.addEventListener('click', () => {
+                populateCampaignGallery();
+                campaignGallery.showModal();
+            });
+            document.getElementById('close-campaign-gallery')?.addEventListener('click', () => campaignGallery.close());
+
+            const container = document.getElementById('canvas-container');
+            const canAnimateBackdrop = typeof THREE !== 'undefined' && !prefersReducedMotion && window.innerWidth >= 768 && window.matchMedia('(pointer: fine)').matches;
+            container.hidden = !canAnimateBackdrop;
+            if (canAnimateBackdrop) {
+            try {
+            const scene = new THREE.Scene();
+            
+            const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 15;
+
+            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+                renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, window.innerWidth < 768 ? 1 : 1.5));
+            container.appendChild(renderer.domElement);
+
+            const group = new THREE.Group();
+            scene.add(group);
+
+            const glyphTypes = {
+                dot: { src: 'letters/0.png', crop: [11, 499, 158, 158] },
+                a: { src: 'letters/a.png', crop: [192, 242, 418, 415] },
+                m: { src: 'letters/m.png', crop: [631, 242, 689, 416] },
+                i: { src: 'letters/i.png', crop: [1341, 34, 156, 624] },
+                r: { src: 'letters/r.png', crop: [1519, 242, 421, 416] }
+            };
+            const logoGlyphInstances = [
+                { type: 'dot', x: -15, y: 5.5, z: -13, height: 0.75, opacity: 0.19 },
+                { type: 'a', x: -11.5, y: 2.4, z: -10, height: 2.7, opacity: 0.24 },
+                { type: 'm', x: -7.2, y: -3.8, z: -17, height: 2.8, opacity: 0.18 },
+                { type: 'i', x: -3.5, y: 5.2, z: -14, height: 2.7, opacity: 0.20 },
+                { type: 'r', x: 1.1, y: -1.8, z: -11, height: 2.6, opacity: 0.25 },
+                { type: 'a', x: 5.6, y: 4.5, z: -18, height: 3.3, opacity: 0.17 },
+                { type: 'm', x: 10.2, y: -3.4, z: -15, height: 2.8, opacity: 0.21 },
+                { type: 'r', x: 15.6, y: 4.8, z: -21, height: 2.5, opacity: 0.16 },
+                { type: 'i', x: -18, y: -1.6, z: -20, height: 3.0, opacity: 0.17 },
+                { type: 'a', x: -14.6, y: -7.2, z: -22, height: 2.8, opacity: 0.18 },
+                { type: 'r', x: -8.3, y: 7.2, z: -24, height: 2.7, opacity: 0.16 },
+                { type: 'm', x: -2.4, y: -6.0, z: -20, height: 2.5, opacity: 0.20 },
+                { type: 'dot', x: 3.3, y: 5.6, z: -12, height: 0.62, opacity: 0.22 },
+                { type: 'i', x: 7.8, y: 1.5, z: -10, height: 3.1, opacity: 0.23 },
+                { type: 'a', x: 13.7, y: -6.1, z: -23, height: 2.9, opacity: 0.17 },
+                { type: 'r', x: -20.5, y: 5.7, z: -23, height: 2.6, opacity: 0.15 },
+                { type: 'm', x: 0.3, y: 1.2, z: -28, height: 3.7, opacity: 0.14 },
+                { type: 'a', x: -4.8, y: 8.3, z: -18, height: 2.5, opacity: 0.18 },
+                { type: 'i', x: 19.2, y: 1.2, z: -19, height: 2.6, opacity: 0.16 },
+                { type: 'r', x: 6.2, y: -7.2, z: -16, height: 2.8, opacity: 0.19 }
+            ];
+            const objects = [];
+            const glyphTextures = new Map();
+            Object.entries(glyphTypes).forEach(([type, glyph]) => {
+                const [sx, sy, sw, sh] = glyph.crop;
+                const logoSource = new Image();
+                const texturePromise = new Promise((resolve, reject) => {
+                    logoSource.onload = () => {
+                        const glyphCanvas = document.createElement('canvas');
+                        glyphCanvas.width = sw;
+                        glyphCanvas.height = sh;
+                        const context = glyphCanvas.getContext('2d');
+                        context.drawImage(logoSource, sx, sy, sw, sh, 0, 0, sw, sh);
+                        const texture = new THREE.CanvasTexture(glyphCanvas);
+                        if (THREE.sRGBEncoding !== undefined) texture.encoding = THREE.sRGBEncoding;
+                        resolve({ texture, width: sw, height: sh });
+                    };
+                    logoSource.onerror = reject;
+                });
+                glyphTextures.set(type, texturePromise);
+                logoSource.src = glyph.src;
+            });
+
+            logoGlyphInstances.forEach((glyph, index) => {
+                glyphTextures.get(glyph.type).then(({ texture, width: sourceWidth, height: sourceHeight }) => {
+                    const material = new THREE.MeshBasicMaterial({
+                        map: texture,
+                        transparent: true,
+                        opacity: glyph.opacity,
+                        side: THREE.DoubleSide,
+                        depthWrite: false
+                    });
+                    const meshWidth = glyph.height * (sourceWidth / sourceHeight);
+                    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(meshWidth, glyph.height), material);
+                    mesh.position.set(glyph.x, glyph.y, glyph.z);
+                    group.add(mesh);
+                    objects.push({
+                        mesh,
+                        baseX: glyph.x,
+                        baseY: glyph.y,
+                        phase: index * 0.47,
+                        driftX: 0.2 + (index % 4) * 0.035,
+                        driftY: 0.28 + (index % 3) * 0.06,
+                        rotSpeedX: (Math.random() - 0.5) * 0.0022,
+                        rotSpeedY: (Math.random() - 0.5) * 0.0022
+                    });
+                }).catch(() => {});
+            });
+
+            let mouseX = 0;
+            let mouseY = 0;
+            let targetX = 0;
+            let targetY = 0;
+
+            window.addEventListener('mousemove', (event) => {
+                mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+                mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+            });
+
+            let scrollY = window.scrollY;
+            window.addEventListener('scroll', () => {
+                scrollY = window.scrollY;
+            });
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+
+            const clock = new THREE.Clock();
+
+            function animate() {
+                requestAnimationFrame(animate);
+
+                targetX += (mouseX - targetX) * 0.05;
+                targetY += (mouseY - targetY) * 0.05;
+
+                group.rotation.y = targetX * 0.5 + clock.getElapsedTime() * 0.05;
+                group.rotation.x = targetY * 0.5 + scrollY * 0.0005;
+
+                const elapsed = clock.getElapsedTime();
+                objects.forEach(obj => {
+                    obj.mesh.rotation.x += obj.rotSpeedX;
+                    obj.mesh.rotation.y += obj.rotSpeedY;
+                    obj.mesh.position.x = obj.baseX + Math.sin(elapsed * 0.24 + obj.phase) * obj.driftX;
+                    obj.mesh.position.y = obj.baseY + Math.sin(elapsed * 0.38 + obj.phase) * obj.driftY;
+                });
+
+                renderer.render(scene, camera);
+            }
+
+            animate();
+            } catch (_) {
+                container.replaceChildren();
+                container.hidden = true;
+            }
+            }
+        });
+    </script>
+
+    <script>
+        document.querySelectorAll('.package-art-toggle').forEach((button) => {
+            button.addEventListener('click', () => {
+                const panel = document.getElementById(button.getAttribute('aria-controls'));
+                const isExpanded = button.getAttribute('aria-expanded') === 'true';
+                button.setAttribute('aria-expanded', String(!isExpanded));
+                panel.classList.toggle('hidden', isExpanded);
+                button.querySelector('span').textContent = isExpanded ? '+' : '−';
+                button.firstChild.textContent = isExpanded ? 'VIEW PACKAGE VISUAL ' : 'HIDE PACKAGE VISUAL ';
+            });
+        });
+    </script>
+</body>
+</html>

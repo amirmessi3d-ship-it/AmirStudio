@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request a Quote — Amir Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        body { background:#0A0A0A; color:#F4F4F0; font-family:Inter,sans-serif; }
+        .grid-bg { background-image:linear-gradient(to right,rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(to bottom,rgba(255,255,255,.035) 1px,transparent 1px); background-size:40px 40px; }
+        input, textarea { background:#111; border:1px solid #333; color:#F4F4F0; }
+        input:focus, textarea:focus { border-color:#FF3333; outline:2px solid #FFCC00; outline-offset:2px; }
+        :focus-visible { outline:2px solid #FFCC00; outline-offset:4px; }
+    </style>
+</head>
+<body class="grid-bg min-h-screen p-5 md:p-12">
+    <main class="max-w-5xl mx-auto grid lg:grid-cols-2 border border-neutral-700 bg-neutral-950/90">
+        <section class="p-7 md:p-10 border-b lg:border-b-0 lg:border-r border-neutral-700">
+            <a href="index.html#expertise" class="font-mono text-xs text-neutral-400 hover:text-red-500">← BACK TO SERVICES</a>
+            <p class="font-mono text-xs text-red-500 tracking-widest mt-12">REQUEST A QUOTE</p>
+            <h1 class="font-[Space_Grotesk] text-4xl md:text-5xl font-bold uppercase mt-3">LET'S BUILD<br><span class="text-red-500">YOUR PROJECT.</span></h1>
+            <img id="selected-banner" class="block w-full h-auto border border-neutral-700 mt-10" alt="Selected service banner">
+            <p class="font-mono text-xs text-neutral-500 mt-3">SELECTED SERVICE</p>
+            <p id="selected-service" class="font-[Space_Grotesk] text-xl font-bold uppercase"></p>
+        </section>
+        <section class="p-7 md:p-10">
+            <p class="text-neutral-400 leading-relaxed mb-7">Tell us a little about what you need. We’ll review the details and send you a tailored quotation.</p>
+            <form id="quote-form" class="space-y-4">
+                <input id="service-input" type="hidden">
+                <input id="banner-input" type="hidden">
+                <label class="block text-sm">Your name<input id="name" required class="block w-full mt-2 p-3" autocomplete="name"></label>
+                <label class="block text-sm">Email address<input id="email" required type="email" class="block w-full mt-2 p-3" autocomplete="email"></label>
+                <label class="block text-sm">Phone / WhatsApp <span class="text-neutral-500">(optional)</span><input id="phone" type="tel" class="block w-full mt-2 p-3" autocomplete="tel"></label>
+                <label class="block text-sm">Project details<textarea id="details" required rows="4" class="block w-full mt-2 p-3 resize-y" placeholder="Briefly describe the scope, goals and timeline."></textarea></label>
+                <button type="submit" class="w-full min-h-12 p-4 bg-red-500 text-white font-mono text-sm font-bold uppercase hover:bg-red-600 transition-colors">OPEN EMAIL TO SEND REQUEST</button>
+            </form>
+            <p id="confirmation" class="hidden mt-5 p-4 border border-red-500 text-sm text-neutral-200" role="status" aria-live="polite">Your email app should open with your request ready. Please press Send there to submit it. If it does not open, email <a class="underline" href="mailto:info.amirstudioa@gmail.com">info.amirstudioa@gmail.com</a> or message us on <a class="underline" href="https://wa.me/201018854164" target="_blank" rel="noopener noreferrer">WhatsApp</a>.</p>
+            <p class="mt-4 text-xs text-neutral-500">This form prepares an email on your device; your request is sent only after you send that email.</p>
+        </section>
+    </main>
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const service = params.get('service') || 'Selected Service';
+        const requestedBanner = params.get('banner') || '';
+        const packageBanners = {
+            'Presence Monthly Content Package': 'package-visuals/presence-in.webp',
+            'Momentum Monthly Content Package': 'package-visuals/momentum-in.webp',
+            'Signature Monthly Content Package': 'package-visuals/signature-in.webp'
+        };
+        const packageBanner = packageBanners[service] || '';
+        const banner = packageBanner || requestedBanner;
+        document.getElementById('selected-service').textContent = service;
+        document.getElementById('service-input').value = service;
+        document.getElementById('banner-input').value = banner;
+        const selectedBanner = document.getElementById('selected-banner');
+        selectedBanner.src = banner || 'services/brand-strategy.webp';
+        selectedBanner.alt = packageBanner ? `${service} visual` : service;
+
+        document.getElementById('quote-form').addEventListener('submit', (event) => {
+            event.preventDefault();
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const phone = document.getElementById('phone').value.trim() || 'Not provided';
+            const details = document.getElementById('details').value.trim();
+            const subject = `Quote request — ${service}`;
+            const body = `Service: ${service}\nSelected banner: ${banner}\n\nName: ${name}\nEmail: ${email}\nPhone / WhatsApp: ${phone}\n\nProject details:\n${details}`;
+            window.location.href = `mailto:info.amirstudioa@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            document.getElementById('confirmation').classList.remove('hidden');
+        });
+    </script>
+</body>
+</html>
