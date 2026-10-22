@@ -788,7 +788,7 @@
                     video.className = 'w-full aspect-[9/16] bg-black object-contain';
                     video.setAttribute('aria-label', `Marketing Beyond Ads motion study ${number}`);
                     const source = document.createElement('source');
-                    source.src = `23/videos/motion-${String(number).padStart(2, '0')}.mp4`;
+                    source.src = `videos/motion-${String(number).padStart(2, '0')}.mp4`;
                     source.type = 'video/mp4';
                     video.appendChild(source);
                     card.append(label, video);
@@ -962,3 +962,4 @@
     </script>
 </body>
 </html>
+
